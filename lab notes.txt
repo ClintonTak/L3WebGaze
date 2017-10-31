@@ -1,0 +1,16 @@
+9/28 
+Expiriment Options: 
+	Get a webcam and stick it on the department eye trackers to see how similar the results are. 
+	Get a tobii infared tracker and use that to compare the accuracy 
+	Left or right would be pretty good, but more accuracy is better. 
+	If we use glasses we could have the computer beep to sync the times. 
+	30 hrz seems fast enough
+	Generally we're working within 100 ms
+	Find out if the tracker still works when the web browser is closed
+	Look at timing, issues with different clocks that aren't perfectly synced -> this is why we want to do simultaneous eye tracking 
+	
+
+Goal: 
+
+	
+
