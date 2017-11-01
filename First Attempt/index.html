@@ -44,7 +44,7 @@
 	<div id="bottomRight">bottomRight
 	</div>
 
-
+	
   <script src="d3.v3.min.js"></script>
   <script src="webgazer.js"></script>
 
@@ -60,7 +60,9 @@
   	window.onload = function() {
   		
   		
-  		webgazer.setGazeListener(function(data, elapsedTime) {
+  		webgazer.setRegression('ridge')
+    	.setTracker('clmtrackr')
+  		.setGazeListener(function(data, elapsedTime) {
 		    if (data == null) {
 				return;
 			}
@@ -68,10 +70,8 @@
 			var yprediction = data.y; //these y coordinates are relative to the viewport
 			console.log(elapsedTime); //elapsed time is based on time since begin was called
 			console.log(data);
-
 			
-			var leftCircle = document.getElementById("circleTopLeft");
-			var rightCircle = document.getElementById("circleTopRight");
+			//start of section for quadrant control 
 			if (data.x < halfWidth && data.y < halfHeight){//show top left
 				console.log("top left");
 				topLeft.style.backgroundColor = "#AAA";
@@ -98,12 +98,98 @@
 				bottomLeft.style.backgroundColor = "#FFFFFF"; 
 				topRight.style.backgroundColor = "#FFFFFF";
 				topLeft.style.backgroundColor = "#FFFFFF";
-			}
+			}//send of section for quadrant control 
 
-			//implement the screen feedback 
+			//start of section for line drawing and video feedback
+			svg.select("#eyeline1").remove();
+	        var cl = webgazer.getTracker().clm;
+
+	        var line = svg.append("line")
+	                  .attr("x1",data.x)
+	                  .attr("y1",data.y)
+	                  .attr("x2",cl.getCurrentPosition()[27][0])
+	                  .attr("y2",cl.getCurrentPosition()[27][1])
+	                  .attr("stroke-width",2)
+	                  .attr("stroke","red")
+	                  .attr("id","eyeline1");        
+
+	        svg.select("#eyeline2").remove();
+	        var cl = webgazer.getTracker().clm;
+
+	        var line = svg.append("line")
+	                  .attr("x1",data.x)
+	                  .attr("y1",data.y)
+	                  .attr("x2",cl.getCurrentPosition()[32][0])
+	                  .attr("y2",cl.getCurrentPosition()[32][1])
+	                  .attr("stroke-width",2)
+	                  .attr("stroke","red")
+	                  .attr("id","eyeline2");
+
+	        svg.select("#predictionSquare").remove();
+	        var dot = svg.append("rect")
+	                    .attr("x",data.x)
+	                    .attr("y",data.y)
+	                    .attr("width",5)
+	                    .attr("height",5)
+	                    .attr("fill","red")
+	                    .attr("id","predictionSquare");
+
 			
 		    
 		}).begin();
+
+
+		var width = window.innerWidth;
+    	var height = window.innerHeight;
+
+    	var svg = d3.select("body").append("svg")
+    	.attr("width", width)
+    	.attr("height", height)
+    	.attr("id","balls");
+
+
+    	function setup() {
+
+	      var width = 320;
+	      var height = 240;
+	      var topDist = '0px';
+	      var leftDist = '0px';
+
+	      var video = document.getElementById('webgazerVideoFeed');
+	      video.style.display = 'block';
+	      video.style.position = 'absolute';
+	      video.style.top = topDist;
+	      video.style.left = leftDist;
+	      video.width = width;
+	      video.height = height;
+	      video.style.margin = '0px';
+	      video.style.zIndex="-1";
+
+	      webgazer.params.imgWidth = width;
+	      webgazer.params.imgHeight = height;
+
+	      var overlay = document.createElement('canvas');
+	      overlay.id = 'overlay';
+	      overlay.style.position = 'absolute';
+	      overlay.width = width;
+	      overlay.height = height;
+	      overlay.style.top = topDist;
+	      overlay.style.left = leftDist;
+	      overlay.style.margin = '0px';
+
+	      document.body.appendChild(overlay);
+
+	      var cl = webgazer.getTracker().clm;
+
+	      function drawLoop() {
+	        requestAnimFrame(drawLoop);
+	        overlay.getContext('2d').clearRect(0,0,width,height);
+	        if (cl.getCurrentPosition()) {
+	          cl.draw(overlay);
+	        }
+	      }
+	      drawLoop();
+	    };
 
 		
 	    
