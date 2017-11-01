@@ -32,9 +32,65 @@
 			background: #FFFFFF; 
 		}
 
+		/*CIRCLES*/
+		.circle{
+			height: 200px;
+			width: 200px;
+			border-radius: 50%;
+			position:absolute;
+			background-color: #123456;
+		}
+		#circleTopLeft {
+			top: 0px;
+			left: 0px;
+		}
+		#circleTopMiddle {
+			top:108px;
+			left: 50%;
+			transform: translate(-50%, -50%);	
+		}
+		#circleTopRight {
+			top:108px;
+			right: -95px;
+			transform: translate(-50%, -50%);	
+		}
+
+		#circleBotLeft {
+			left:5px;
+			top:400px;
+			
+		}
+
+		#circleBotMiddle {
+			top:400px;
+			left: 50%;
+			transform: translate(-50%, 0%);	
+		}
+
+		#circleBotRight {
+			top:400px;
+			right: -95px;
+			transform: translate(-50%, 0%);	
+		}
+
   </style>
 </head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="d3.v3.min.js"></script>
+<script src="webgazer.js"></script>
 <body>
+
+
+	<button class="circle" id="circleTopLeft"  ></button>
+	<button class="circle" id="circleTopMiddle" ></button>
+	<button class="circle" id="circleTopRight"></button>
+
+
+	<button class="circle" id="circleBotLeft"  ></button>
+	<button class="circle" id="circleBotMiddle" ></button>
+	<button class="circle" class="circleBotRight"></button>
+
+
 	<div id="topLeft">topLeft
 	</div>
 	<div id="topRight">topRight
@@ -45,25 +101,29 @@
 	</div>
 
 	
-  <script src="d3.v3.min.js"></script>
-  <script src="webgazer.js"></script>
+  
 
   <script>
-  	var halfWidth = screen.width/2;
-  	var halfHeight = screen.height/2; 
-  	var topLeft = document.getElementById("topLeft");
+  	$(document).ready(function(){
+    	$(".circle").click(function(){
+        	$(this).hide();
+    	});
+	});
+
+
+	var halfWidth = screen.width/2;
+	var halfHeight = screen.height/2; 
+	var topLeft = document.getElementById("topLeft");
 	var topRight = document.getElementById("topRight");
 	var bottomLeft = document.getElementById("bottomLeft");
 	var bottomRight = document.getElementById("bottomRight");
-
- 	
-  	window.onload = function() {
-  		
-  		
-  		webgazer.setRegression('ridge')
-    	.setTracker('clmtrackr')
-  		.setGazeListener(function(data, elapsedTime) {
-		    if (data == null) {
+	window.onload = function() {
+		
+		
+		webgazer.setRegression('ridge')
+		.setTracker('clmtrackr')
+		.setGazeListener(function(data, elapsedTime) {
+			if (data == null) {
 				return;
 			}
 			var xprediction = data.x; //these x coordinates are relative to the viewport 
@@ -100,107 +160,117 @@
 				topLeft.style.backgroundColor = "#FFFFFF";
 			}//send of section for quadrant control 
 
+			
 			//start of section for line drawing and video feedback
 			svg.select("#eyeline1").remove();
-	        var cl = webgazer.getTracker().clm;
+			var cl = webgazer.getTracker().clm;
 
-	        var line = svg.append("line")
-	                  .attr("x1",data.x)
-	                  .attr("y1",data.y)
-	                  .attr("x2",cl.getCurrentPosition()[27][0])
-	                  .attr("y2",cl.getCurrentPosition()[27][1])
-	                  .attr("stroke-width",2)
-	                  .attr("stroke","red")
-	                  .attr("id","eyeline1");        
+			var line = svg.append("line")
+					  .attr("x1",data.x)
+					  .attr("y1",data.y)
+					  .attr("x2",cl.getCurrentPosition()[27][0])
+					  .attr("y2",cl.getCurrentPosition()[27][1])
+					  .attr("stroke-width",2)
+					  .attr("stroke","red")
+					  .attr("id","eyeline1");        
 
-	        svg.select("#eyeline2").remove();
-	        var cl = webgazer.getTracker().clm;
+			svg.select("#eyeline2").remove();
+			var cl = webgazer.getTracker().clm;
 
-	        var line = svg.append("line")
-	                  .attr("x1",data.x)
-	                  .attr("y1",data.y)
-	                  .attr("x2",cl.getCurrentPosition()[32][0])
-	                  .attr("y2",cl.getCurrentPosition()[32][1])
-	                  .attr("stroke-width",2)
-	                  .attr("stroke","red")
-	                  .attr("id","eyeline2");
+			var line = svg.append("line")
+					  .attr("x1",data.x)
+					  .attr("y1",data.y)
+					  .attr("x2",cl.getCurrentPosition()[32][0])
+					  .attr("y2",cl.getCurrentPosition()[32][1])
+					  .attr("stroke-width",2)
+					  .attr("stroke","red")
+					  .attr("id","eyeline2");
 
-	        svg.select("#predictionSquare").remove();
-	        var dot = svg.append("rect")
-	                    .attr("x",data.x)
-	                    .attr("y",data.y)
-	                    .attr("width",5)
-	                    .attr("height",5)
-	                    .attr("fill","red")
-	                    .attr("id","predictionSquare");
+			svg.select("#predictionSquare").remove();
+			var dot = svg.append("rect")
+						.attr("x",data.x)
+						.attr("y",data.y)
+						.attr("width",5)
+						.attr("height",5)
+						.attr("fill","red")
+						.attr("id","predictionSquare");
 
 			
-		    
-		}).begin();
+			
+		}).begin().showPredictionPoints(false); ;
 
 
-		var width = window.innerWidth;
-    	var height = window.innerHeight;
-
-    	var svg = d3.select("body").append("svg")
-    	.attr("width", width)
-    	.attr("height", height)
-    	.attr("id","balls");
-
-
-    	function setup() {
-
-	      var width = 320;
-	      var height = 240;
-	      var topDist = '0px';
-	      var leftDist = '0px';
-
-	      var video = document.getElementById('webgazerVideoFeed');
-	      video.style.display = 'block';
-	      video.style.position = 'absolute';
-	      video.style.top = topDist;
-	      video.style.left = leftDist;
-	      video.width = width;
-	      video.height = height;
-	      video.style.margin = '0px';
-	      video.style.zIndex="-1";
-
-	      webgazer.params.imgWidth = width;
-	      webgazer.params.imgHeight = height;
-
-	      var overlay = document.createElement('canvas');
-	      overlay.id = 'overlay';
-	      overlay.style.position = 'absolute';
-	      overlay.width = width;
-	      overlay.height = height;
-	      overlay.style.top = topDist;
-	      overlay.style.left = leftDist;
-	      overlay.style.margin = '0px';
-
-	      document.body.appendChild(overlay);
-
-	      var cl = webgazer.getTracker().clm;
-
-	      function drawLoop() {
-	        requestAnimFrame(drawLoop);
-	        overlay.getContext('2d').clearRect(0,0,width,height);
-	        if (cl.getCurrentPosition()) {
-	          cl.draw(overlay);
-	        }
-	      }
-	      drawLoop();
-	    };
+		var width = window.innerWidth,
+		height = window.innerHeight;
 
 		
-	    
 
-  	};
+		/*
+		function setup() {
+
+		  var width = 320;
+		  var height = 240;
+		  var topDist = '0px';
+		  var leftDist = '0px';
+
+		  var video = document.getElementById('webgazerVideoFeed');
+		  video.style.display = 'block';
+		  video.style.position = 'absolute';
+		  video.style.top = topDist;
+		  video.style.left = leftDist;
+		  video.width = width;
+		  video.height = height;
+		  video.style.margin = '0px';
+		  video.style.zIndex="-1";
+
+		  webgazer.params.imgWidth = width;
+		  webgazer.params.imgHeight = height;
+
+		  var overlay = document.createElement('canvas');
+		  overlay.id = 'overlay';
+		  overlay.style.position = 'absolute';
+		  overlay.width = width;
+		  overlay.height = height;
+		  overlay.style.top = topDist;
+		  overlay.style.left = leftDist;
+		  overlay.style.margin = '0px';
+
+		  document.body.appendChild(overlay);
+
+		  var cl = webgazer.getTracker().clm;
+
+		  function drawLoop() {
+			requestAnimFrame(drawLoop);
+			overlay.getContext('2d').clearRect(0,0,width,height);
+			if (cl.getCurrentPosition()) {
+			  cl.draw(overlay);
+			}
+		  }
+		  drawLoop();
+		};*/
+
+
+		function checkIfReady() {
+			if (webgazer.isReady()) {
+				setup();
+	  		} 	else {
+				setTimeout(checkIfReady, 100);
+	  		}
+		}
+
+		setTimeout(checkIfReady,100);
+
+	};
+
+	window.onbeforeunload = function() {
+		//webgazer.end(); //Uncomment if you want to save the data even if you reload the page.
+		window.localStorage.clear(); //Comment out if you want to save data across different sessions 
+  	}
 
 
 
 
-
-    
+	
 
   </script>
 </body>
