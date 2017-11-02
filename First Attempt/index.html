@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <!--ps aux | grep 8080, kill -9 <pid>-->
+<!-- Take a rolling average/ exponential decay average of the place that you're looking so that the area doesn't flicker and change as fast as it does// smoothing the change 
+
+
+Next Steps
+1. Calibration Routine that has little circles pop up until a rolling average of error drops below a threshold: error is difference between prediction and click point. Maybe make a callibration bar that shows the user how calibrated it is. A minmum number of clicks must be obtained, or do a rolling average or something. 
+
+2. Calibration check, have a circle move around the screen that we know the position of and then find the error of their prediction and the location of the circle. 
+-->
+
 <meta charset="utf-8">
 <head>
   <style>
@@ -79,16 +88,6 @@
 <script src="d3.v3.min.js"></script>
 <script src="webgazer.js"></script>
 <body>
-
-
-	<button class="circle" id="circleTopLeft"  ></button>
-	<button class="circle" id="circleTopMiddle" ></button>
-	<button class="circle" id="circleTopRight"></button>
-
-
-	<button class="circle" id="circleBotLeft"  ></button>
-	<button class="circle" id="circleBotMiddle" ></button>
-	<button class="circle" class="circleBotRight"></button>
 
 
 	<div id="topLeft">topLeft
@@ -203,9 +202,12 @@
 		var width = window.innerWidth,
 		height = window.innerHeight;
 
-		
+		var svg = d3.select("body").append("svg")
+		.attr("width", width)
+		.attr("height", height)
+		.attr("id","balls");    
 
-		/*
+		
 		function setup() {
 
 		  var width = 320;
@@ -247,7 +249,7 @@
 			}
 		  }
 		  drawLoop();
-		};*/
+		};
 
 
 		function checkIfReady() {
