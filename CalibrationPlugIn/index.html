@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <meta charset="utf-8">
@@ -17,6 +16,47 @@
 	    left:600px;
     	top:350px;
 	}
+	#tracker{
+	    position:absolute;
+    	background-color: rgba(204, 0, 102, 0);
+	    border: 3px solid #7DFF33;
+	    width: 30px;
+	    height: 30px;
+	    -webkit-border-radius:20px;
+	    -moz-border-radius:20px;
+
+	    left:600px;
+    	top:250px;
+	}
+
+	html, body { height: 100%; padding: 0; margin: 0; }
+		/*div { width: 50%; height: 50%; float: left; } potentially move this into each class individually*/
+	#topLeft { 
+		width: 50%; 
+		height: 50%;
+		float: left; 
+		background: #FFFFFF; 
+	}
+	#topRight { 
+		width: 50%; 
+		height: 50%; 
+		float: left; 
+		background: #FFFFFF; 
+		
+	}
+	#bottomLeft {
+		width: 50%; 
+		height: 50%; 
+		float: left; 
+		background: #FFFFFF; 
+
+	}
+	#bottomRight {
+		width: 50%; 
+		height: 50%; 
+		float: left; 
+		background: #FFFFFF; 
+	}
 	
   </style>
 </head>
@@ -24,8 +64,24 @@
 <script src="webgazer.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <body>
-	<p id = "score"></p>	
- 	<div id="circle"></div> 	
+		
+ 	<div id="circle"></div>
+ 	<div id="tracker"></div>
+ 	<div id="topLeft">topLeft
+ 		<p id = "score"></p>
+ 		<p id = "prediction"></p>
+	</div>
+
+
+	<div id="topRight">topRight
+	</div>
+
+	<div id="bottomLeft">bottomLeft
+	</div>
+	<div id="bottomRight">bottomRight
+	</div>
+
+
 </body>
 
 <script type="text/javascript">
@@ -46,11 +102,90 @@ $(document).ready(function(){
 
 	function begin(){
 		document.getElementById("score").innerHTML = "X: " + String(600) + " Y: -" + String(350);
-	}
-
-
-	
-    
+	}  
 });	
+
+
+var halfWidth = screen.width/2;
+	var halfHeight = screen.height/2; 
+	var topLeft = document.getElementById("topLeft");
+	var topRight = document.getElementById("topRight");
+	var bottomLeft = document.getElementById("bottomLeft");
+	var bottomRight = document.getElementById("bottomRight");
+	window.onload = function() {
+		
+		
+		webgazer.setRegression('ridge')
+		.setTracker('clmtrackr')
+		.setGazeListener(function(data, elapsedTime) {
+			if (data == null) {
+				return;
+			}
+			var xprediction = data.x; //these x coordinates are relative to the viewport 
+			var yprediction = data.y; //these y coordinates are relative to the viewport
+			document.getElementById("prediction").innerHTML = "X: " + String(xprediction) + " Y: -" + String(yprediction);
+			document.getElementById("tracker").style.left = xprediction+"px";
+			document.getElementById("tracker").style.top = yprediction+"px";
+			console.log(elapsedTime); //elapsed time is based on time since begin was called
+			console.log(data);
+			
+			//start of section for quadrant control 
+			if (data.x < halfWidth && data.y < halfHeight){//show top left
+				console.log("top left");
+				topLeft.style.backgroundColor = "#AAA";
+				bottomLeft.style.backgroundColor = "#FFFFFF";
+				topRight.style.backgroundColor = "#FFFFFF";
+				bottomRight.style.backgroundColor = "#FFFFFF"; 
+			}
+			else if (data.x > halfWidth && data.y < halfHeight){//show top right
+				console.log("top right");
+				topRight.style.backgroundColor = "#AAA";
+				bottomRight.style.backgroundColor = "#FFFFFF";
+				topLeft.style.backgroundColor = "#FFFFFF";
+				bottomLeft.style.backgroundColor = "#FFFFFF"; 
+			} else if (data.x < halfWidth && data.y > halfHeight){//show bottom left
+				console.log("bottom left");
+				bottomLeft.style.backgroundColor = "#AAA"; 
+				topRight.style.backgroundColor = "#FFFFFF";
+				bottomRight.style.backgroundColor = "#FFFFFF";
+				topLeft.style.backgroundColor = "#FFFFFF";
+			}
+			else if (data.x > halfWidth && data.y > halfHeight){//show bottom right
+				console.log("bottom right");
+				bottomRight.style.backgroundColor = "#AAA";
+				bottomLeft.style.backgroundColor = "#FFFFFF"; 
+				topRight.style.backgroundColor = "#FFFFFF";
+				topLeft.style.backgroundColor = "#FFFFFF";
+			}//send of section for quadrant control 
+
+			
+			//start of section for line drawing and video feedback
+		
+			var cl = webgazer.getTracker().clm;
+
+			
+			
+			
+		}).begin().showPredictionPoints(false); ;
+
+
+		var width = window.innerWidth,
+		height = window.innerHeight;
+
+		
+
+
+	};
+
+	window.onbeforeunload = function() {
+		//webgazer.end(); //Uncomment if you want to save the data even if you reload the page.
+		window.localStorage.clear(); //Comment out if you want to save data across different sessions 
+  	}
+
+
+
+
+
+
 </script>
 </html>
